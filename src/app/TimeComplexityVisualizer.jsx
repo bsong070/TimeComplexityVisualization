@@ -1,93 +1,145 @@
 import React, { useEffect, useState } from "react";
 
-import "./styles.css";
 import "./colors";
 import colors from "./colors";
+import findMaxLogN from "./algorithms/findMaxLogN";
 import logn2SortAlgorithm from "./algorithms/logn2SortAlgorithm";
+import presortArrayLogN from "./algorithms/presortArrayLogN";
+import nlognSortAlgorithm from "./algorithms/nlognSortAlgorithm";
 
 function TimeComplexityVisualizer(props) {
   const [array, setArray] = useState([]);
-
-  let bars = document.getElementsByClassName("bars");
 
   useEffect(() => {
     resetArray();
   }, []);
 
-  const MIN = 50;
-  const MAX = 500;
-  const SPEED = 1;
+  const MIN = 50; // set minimum array height
+  const MAX = 500; // set maximum array height
+  const ARRAY_LENGTH = 100; // set length of bars to be shown / sorted
+  const SPEED = 3; // set delay speed of animation in ms
+
+  let bars = document.getElementsByClassName("bars"); // returns an array-like object of all child elements
+  let clear = []; // creating an array to store set timeouts
 
   let resetArray = () => {
     let newArray = [];
-    for (let i = 0; i < 100; i++) {
-      newArray.push(Math.floor(Math.random() * (MIN + MAX) + MIN));
+    for (let i = 0; i < ARRAY_LENGTH; i++) {
+      newArray.push(Math.floor(Math.random() * (MAX - MIN) + MIN));
       resetColor();
     }
-    //clearTimeout();
+    clear.forEach((timer) => clearTimeout(timer));
     setArray(newArray);
   };
 
   let resetColor = () => {
     for (let i = 0; i < bars.length; i++) {
-      let compareBar = bars[i].style;
-      compareBar.backgroundColor = colors.default;
+      bars[i].style.backgroundColor = colors.default;
+    }
+  };
+
+  let animations = (i1, r1, i2, r2, algorithm) => {
+    let animationArray = algorithm;
+
+    for (let i = 0; i < animationArray.length; i++) {
+      let changeColor = i % i1 === r1;
+      if (changeColor) {
+        let [barOne, barTwo] = animationArray[i];
+        let color = i % i2 === r2 ? colors.primary : colors.secondary;
+        clear.push(
+          setTimeout(() => {
+            bars[barOne].style.backgroundColor = color;
+            bars[barTwo].style.backgroundColor = color;
+          }, i * SPEED)
+        );
+      } else {
+        clear.push(
+          setTimeout(() => {
+            let [barOne, swapHeight] = animationArray[i];
+            let barOneStyle = bars[barOne].style;
+            barOneStyle.height = `${swapHeight}px`;
+          }, i * SPEED)
+        );
+      }
+    }
+  };
+
+  // time complexity O (log n) -- LOG N ASSUMES ARRAY IS ALREADY SORTED
+  let getMaxLogN = () => {
+    let sortedArray = presortArrayLogN(array);
+    let maxValue = sortedArray[sortedArray.length - 1];
+    for (let i = 0; i < sortedArray.length; i++) {
+      bars[i].style.height = `${sortedArray[i]}px`;
+    }
+    let animations = findMaxLogN(sortedArray);
+
+    for (let i = 0; i < animations.length; i++) {
+      clear.push(
+        setTimeout(() => {
+          bars[animations[i]].style.backgroundColor = colors.secondary;
+        }, i * SPEED)
+      );
+
+      if (sortedArray[animations[i]] === maxValue)
+        clear.push(
+          setTimeout(() => {
+            bars[animations[i]].style.backgroundColor = colors.primary;
+          }, animations.length * SPEED)
+        );
     }
   };
 
   // time complexity O(n)
   let findMax = () => {
-    let [max, maxIndex] = [0, 0];
-    let tempIndex = maxIndex;
+    let max = 0;
+    let maxIndex = 0;
 
     for (let i = 0; i < array.length; i++) {
-      let maxBarStyle = bars[maxIndex].style;
-      let compareBarStyle = bars[i].style;
-      let tempBarStyle = bars[tempIndex].style;
-
       if (max < array[i]) {
-        tempIndex = maxIndex;
-        [max, maxIndex] = [array[i], i];
+        max = array[i];
+        maxIndex = i;
       }
-
-      setTimeout(() => {
-        maxBarStyle.backgroundColor = colors.primary;
-        compareBarStyle.backgroundColor = colors.secondary;
-        tempBarStyle.backgroundColor = colors.secondary;
-      }, i * SPEED);
+      clear.push(
+        setTimeout(() => {
+          bars[i].style.backgroundColor = colors.secondary;
+        }, i * SPEED)
+      );
+      clear.push(
+        setTimeout(() => {
+          bars[maxIndex].style.backgroundColor = colors.primary;
+        }, ARRAY_LENGTH * SPEED)
+      );
     }
   };
-
-  // time complexity O(log n)
 
   // time complexity O(n log n)
   let mergeSort = () => {
-    return;
-  };
-
-  // time complexity O(n^2)
-  let logn2Sort = () => {
-    let animationArray = logn2SortAlgorithm(array);
-
+    let animationArray = nlognSortAlgorithm(array);
     for (let i = 0; i < animationArray.length; i++) {
-      let changeColor = i % 2 === 0;
+      let changeColor = i % 3 !== 2;
       if (changeColor) {
         let [barOne, barTwo] = animationArray[i];
-        let barOneStyle = bars[barOne].style;
-        let barTwoStyle = bars[barTwo].style;
-        let color = i % 4 === 0 ? colors.primary : colors.secondary;
-        setTimeout(() => {
-          barOneStyle.backgroundColor = color;
-          barTwoStyle.backgroundColor = color;
-        }, i * SPEED);
+        let color = i % 3 === 0 ? colors.primary : colors.secondary;
+        clear.push(
+          setTimeout(() => {
+            bars[barOne].style.backgroundColor = color;
+            bars[barTwo].style.backgroundColor = color;
+          }, i * SPEED)
+        );
       } else {
-        setTimeout(() => {
-          let [barOne, swapHeight] = animationArray[i];
-          let barOneStyle = bars[barOne].style;
-          barOneStyle.height = `${swapHeight}px`;
-        }, i * SPEED);
+        clear.push(
+          setTimeout(() => {
+            let [barOne, swapHeight] = animationArray[i];
+            bars[barOne].style.height = `${swapHeight}px`;
+          }, i * SPEED)
+        );
       }
     }
+  };
+
+  // time complexity O(n^2) -- not using an established O(n^2) method because this method allowed more bars to be swapped for better visualization
+  let swapSort = () => {
+    animations(2, 0, 4, 0, logn2SortAlgorithm(array));
   };
 
   let styles = {
@@ -100,10 +152,68 @@ function TimeComplexityVisualizer(props) {
     container: {
       margin: "auto",
     },
+    findMaxButton: {
+      backgroundColor: colors.secondary,
+      borderRadius: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      width: "20%",
+    },
+    getMaxLogNButton: {
+      backgroundColor: colors.secondary,
+      borderRadius: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      width: "20%",
+    },
+    mergeSortButton: {
+      backgroundColor: colors.secondary,
+      borderRadius: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      width: "20%",
+    },
+    resetButton: {
+      backgroundColor: colors.reset,
+      borderRadius: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      width: "20%",
+    },
+    swapSortButton: {
+      backgroundColor: colors.secondary,
+      borderRadius: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      width: "20%",
+    },
   };
 
   return (
     <>
+      <div>
+        <button style={styles.resetButton} onClick={() => resetArray()}>
+          Reset Array
+        </button>
+        <button style={styles.getMaxLogNButton} onClick={() => getMaxLogN()}>
+          O(log n) - Find Max
+        </button>
+        <button style={styles.findMaxButton} onClick={() => findMax()}>
+          O(n) - Find Max
+        </button>
+        <button style={styles.mergeSortButton} onClick={() => mergeSort()}>
+          O(n log n) - Merge Sort
+        </button>
+        <button style={styles.swapSortButton} onClick={() => swapSort()}>
+          O(n2) - Swap Sort
+        </button>
+      </div>
+
       <div className="container" style={styles.container}>
         {array.map((value, index) => (
           <div
@@ -119,12 +229,6 @@ function TimeComplexityVisualizer(props) {
             }}
           />
         ))}
-      </div>
-      <div>
-        <button onClick={() => resetArray()}>Reset</button>
-        <button onClick={() => findMax()}>O(n) - Find Max</button>
-        <button onClick={() => logn2Sort()}>O(n2) - Log N Sort</button>
-        <button onClick={() => mergeSort()}>O(n log n) - Merge Sort</button>
       </div>
     </>
   );
