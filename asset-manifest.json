@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/TimeComplexityVisualization/static/css/main.1635e87c.chunk.css",
+    "main.js": "/TimeComplexityVisualization/static/js/main.1192436a.chunk.js",
+    "main.js.map": "/TimeComplexityVisualization/static/js/main.1192436a.chunk.js.map",
+    "runtime-main.js": "/TimeComplexityVisualization/static/js/runtime-main.457c7010.js",
+    "runtime-main.js.map": "/TimeComplexityVisualization/static/js/runtime-main.457c7010.js.map",
+    "static/js/2.5bc731fe.chunk.js": "/TimeComplexityVisualization/static/js/2.5bc731fe.chunk.js",
+    "static/js/2.5bc731fe.chunk.js.map": "/TimeComplexityVisualization/static/js/2.5bc731fe.chunk.js.map",
+    "static/js/3.8a21fd94.chunk.js": "/TimeComplexityVisualization/static/js/3.8a21fd94.chunk.js",
+    "static/js/3.8a21fd94.chunk.js.map": "/TimeComplexityVisualization/static/js/3.8a21fd94.chunk.js.map",
+    "index.html": "/TimeComplexityVisualization/index.html",
+    "static/css/main.1635e87c.chunk.css.map": "/TimeComplexityVisualization/static/css/main.1635e87c.chunk.css.map",
+    "static/js/2.5bc731fe.chunk.js.LICENSE.txt": "/TimeComplexityVisualization/static/js/2.5bc731fe.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.457c7010.js",
+    "static/js/2.5bc731fe.chunk.js",
+    "static/css/main.1635e87c.chunk.css",
+    "static/js/main.1192436a.chunk.js"
+  ]
+}
